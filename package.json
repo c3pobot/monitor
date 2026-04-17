@@ -1,0 +1,28 @@
+{
+  "name": "monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "chmod a+x build.sh && ./build.sh Dockerfile.dev bot-monitor:test",
+    "prod": "chmod a+x build.sh && ./build.sh Dockerfile bot-monitor:latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c3pobot/monitor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/c3pobot/monitor/issues"
+  },
+  "homepage": "https://github.com/c3pobot/monitor#readme",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "express": "^5.2.1",
+    "mqtt": "^5.15.1",
+    "node-fetch": "^3.3.2"
+  }
+}
