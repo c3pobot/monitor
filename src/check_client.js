@@ -27,7 +27,7 @@ const parseResponse = async(res)=>{
 }
 const fetchHealth = async(HOST_IP)=>{
   try{
-    let res = await fetch(`http://${HOST_IP}:3001/healthz`, { signal: AbortSignal.timeout(5000), compress: true, method: 'GET' })
+    let res = await fetch(`https://${HOST_IP}/healthz`, { signal: AbortSignal.timeout(5000), compress: true, method: 'GET' })
     return await parseResponse(res)
   }catch(e){
     if(e?.name){

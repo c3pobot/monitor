@@ -15,7 +15,7 @@ const updateMsg = async()=>{
     let msg2send = {
       color: 15844367,
       timestamp: new Date(),
-      description: 'C3PO Discord Client Status\n```\n',
+      description: 'C3PO Discord Client Status\n```ansi\n',
       footer: {
         text: "Data updated"
       }
@@ -23,7 +23,7 @@ const updateMsg = async()=>{
     for(let i in dataList){
       if(!i || !dataList[i]) continue
       if(i == 'node_status') continue
-      msg2send.description += `Client ${i}: ${dataList[i] == 'ON' ? "Online":"Offline"}\n`
+      msg2send.description += `Client ${i}: ${dataList[i].state == 'ON' ? "\u001b[1;37mOnline\u001b[0m":"\u001b[1;31mOffline\u001b[0m"}\n`
     }
     msg2send.description += '```'
     opts.body = JSON.stringify({content: null, embeds: [msg2send]})

@@ -4,23 +4,32 @@ import checkClient from './check_client.js'
 import sendMsg from './send_msg.js'
 import { dataList } from './data_list.js'
 
-const CLIENT_HOSTS = JSON.parse(process.env.CLIENT_HOSTS || "[]"), DEVICE_NAME = (process.env.DEVICE_NAME || 'Bot')?.toLowerCase(), DISCORD_USER_ID = process.env.DISCORD_USER_ID
-
+const DEVICE_NAME = (process.env.DEVICE_NAME || 'Bot')?.toLowerCase(), DISCORD_USER_ID = process.env.DISCORD_USER_ID
+const NUM_CLIENTS = +(process.env.NUM_CLIENTS || 10)
 const checkHosts = async()=>{
   try{
-    if(!CLIENT_HOSTS || CLIENT_HOSTS?.length == 0) return
-    let count = 0
-    for(let i in CLIENT_HOSTS){
-      if(!CLIENT_HOSTS[i]) continue
-      let status = await checkClient(CLIENT_HOSTS[i])
-      if(status) count++
-      if(!status && dataList[i] == 'ON') sendMsg(`${DISCORD_USER_ID ? `<@${DISCORD_USER_ID}> `:''}Bot Client ${i} went offline...`)
-      if(status && dataList[i] == 'OFF') sendMsg(`Bot Client ${i} came back online...`)
-      dataList[i] = (status ? 'ON':'OFF')
-      mqtt.publish(`${DEVICE_NAME}/client_${i}/connection/state`, dataList[i])
+    if(!NUM_CLIENTS || NUM_CLIENTS == 0) return
+    let disconnectedCount = 0
+    for(let i=0;i<NUM_CLIENTS;i++){
+      let status = await checkClient(`bot${i}.c3po.wtf`)
+      if(status){
+        dataList[i].count = 0
+      }else{
+        dataList[i].count++
+      }
+      if(dataList[i].count >= 3 && dataList[i].state == 'ON'){
+        dataList[i].state = 'OFF'
+        sendMsg(`${DISCORD_USER_ID ? `<@${DISCORD_USER_ID}> `:''}Bot Client ${i} went offline...`)
+      }
+      if(dataList[i].count == 0 && dataList[i].state == 'OFF'){
+        dataList[i].state = 'ON'
+        sendMsg(`Bot Client ${i} came back online...`)
+      }
+      if(dataList[i].state == 'OFF') disconnectedCount++
+      mqtt.publish(`${DEVICE_NAME}/client_${i}/connection/state`, dataList[i].state)
     }
-    dataList.node_status = (count == CLIENT_HOSTS.length) ? 'ON':'OFF'
-    mqtt.publish(`${DEVICE_NAME}/connection/state`, dataList.node_status)
+    dataList.node_status.state = (disconnectedCount > 0) ? 'OFF':'ON'
+    mqtt.publish(`${DEVICE_NAME}/status/connection/state`, dataList.node_status.state)
   }catch(e){
     log.error(e)
   }
